@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   checkLoginStatus() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString('user_id') == null) {
+    if (sharedPreferences.getBool('status') == false) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (BuildContext context) => LoginScreen()),
           (Route<dynamic> route) => false);
@@ -27,20 +27,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      appBar: AppBar(
-        actions: [
-          GestureDetector(
-            onTap: () {
-              sharedPreferences.clear();
-            },
-            child: Icon(Icons.logout),
-          ),
-        ],
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            GestureDetector(
+              onTap: () {
+                sharedPreferences.clear();
+              },
+              child: Icon(Icons.logout),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [],
+        ),
       ),
-      body: Column(
-        children: [],
-      ),
-    ));
+    );
   }
 }

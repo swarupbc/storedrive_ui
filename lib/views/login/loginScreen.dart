@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:storedrive_ui/model/userModel.dart';
+import 'package:storedrive_ui/model/LoginModel.dart';
 import 'package:storedrive_ui/views/Home/homeScreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -88,47 +88,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<UserModel> login(String email, password) async {
-    var userModel;
-    Map data = {
-      "login_id": email,
-      "login_pwd": password,
-    };
-
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var response = await http.post(
-        'https://api.samriddhisolutions.in/vconnect/rds/login.php',
-        body: data);
-    try {
-      if (response.statusCode == 200) {
-        var jsonData = response.body;
-        var jsonMap = json.decode(jsonData);
-        userModel = UserModel.fromJson(jsonMap);
-        setState(
-          () {
-            _isLoading = false;
-            print('Logged In');
-            sharedPreferences.setString('user_id', userModel.userId);
-            print(userModel.userId);
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (BuildContext context) => HomeScreen()),
-                (Route<dynamic> route) => false);
-          },
-        );
-      } else {
-        print(response.body);
-      }
-    } catch (c) {
-      print(c);
-    }
-    return userModel;
-  }
-
   GestureDetector buttonSection() {
     return GestureDetector(
       onTap: () {
-        login(emailController.text, passwordController.text);
+        login(email: emailController.text, password: passwordController.text);
         setState(() {
           _isLoading = true;
         });
@@ -149,5 +112,41 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  login({String email, password}) async {
+    Map data = {
+      "login_id": email,
+      "login_pwd": password,
+    };
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var response = await http.post(
+        'https://api.samriddhisolutions.in/vconnect/rds/login.php',
+        body: data);
+    try {
+      if (response.statusCode == 200) {
+        var loginModel = LoginModel.fromJson(json.decode(response.body));
+
+        await sharedPreferences.setBool('status', loginModel.status);
+        print(loginModel.status);
+
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
+            (Route<dynamic> route) => false);
+
+        setState(
+          () {
+            _isLoading = false;
+            print('Logged In');
+          },
+        );
+      } else {
+        print(response.body);
+      }
+    } catch (c) {
+      print(c);
+    }
+    return LoginModel;
   }
 }
