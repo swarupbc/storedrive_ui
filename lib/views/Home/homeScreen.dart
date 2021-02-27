@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   checkLoginStatus() async {
     sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getBool('status') == false) {
+    if (sharedPreferences.getString('number') == null) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (BuildContext context) => LoginScreen()),
           (Route<dynamic> route) => false);
@@ -31,8 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
           actions: [
             GestureDetector(
-              onTap: () {
+              onTap: () async {
+                sharedPreferences = await SharedPreferences.getInstance();
                 sharedPreferences.clear();
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => LoginScreen()),
+                    (Route<dynamic> route) => false);
               },
               child: Icon(Icons.logout),
             ),

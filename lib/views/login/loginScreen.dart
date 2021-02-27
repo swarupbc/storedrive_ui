@@ -1,10 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storedrive_ui/model/LoginModel.dart';
+import 'package:storedrive_ui/model/userModel.dart';
 import 'package:storedrive_ui/views/Home/homeScreen.dart';
+import 'package:storedrive_ui/views/login/auth.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,6 +13,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  LoginRequestModel requestModel;
+
+  @override
+  @override
+  void initState() {
+    super.initState();
+    requestModel = LoginRequestModel();
+  }
+
   bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
@@ -62,12 +72,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
   TextField textEmail(String title, IconData icon) {
     return TextField(
-      controller: emailController,
-      keyboardType: TextInputType.emailAddress,
+      controller: phoneController,
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
         hintText: title,
         icon: Icon(icon),
@@ -91,10 +101,24 @@ class _LoginScreenState extends State<LoginScreen> {
   GestureDetector buttonSection() {
     return GestureDetector(
       onTap: () {
-        login(email: emailController.text, password: passwordController.text);
-        setState(() {
-          _isLoading = true;
-        });
+        requestModel.phone = phoneController.text;
+        requestModel.password = passwordController.text;
+
+        // setState(() {
+        // _isLoading = true;
+        // });
+        print(requestModel.toJson());
+        APIService apiService = APIService();
+        apiService.login(requestModel).then((value) => {
+              if (value.username.isEmpty)
+                {
+                  print('Login Success'),
+                }
+              else
+                {
+                  print('Login Failed'),
+                }
+            });
       },
       child: Container(
         height: 45.0,
@@ -114,39 +138,38 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  login({String email, password}) async {
-    Map data = {
-      "login_id": email,
-      "login_pwd": password,
-    };
+  // Future login({String phone, password}) async {
+  //   Map data = {
+  //     "login_id": phone,
+  //     "login_pwd": password,
+  //   };
 
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    var response = await http.post(
-        'https://api.samriddhisolutions.in/vconnect/rds/login.php',
-        body: data);
-    try {
-      if (response.statusCode == 200) {
-        var loginModel = LoginModel.fromJson(json.decode(response.body));
+  //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  //   var response = await http.post(
+  //       'https://api.samriddhisolutions.in/vconnect/rds/login.php',
+  //       body: data);
+  //   var jsonResponse;
+  //   if (response.statusCode == 200) {
+  //     jsonResponse = json.decode(response.body);
+  //     var userModel = UserModel.fromJson(jsonResponse);
+  //     String userNumber = userModel.contactNo.toString();
 
-        await sharedPreferences.setBool('status', loginModel.status);
-        print(loginModel.status);
+  //     await sharedPreferences.setString('number', userNumber);
 
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
-            (Route<dynamic> route) => false);
+  //     Navigator.of(context).pushAndRemoveUntil(
+  //         MaterialPageRoute(builder: (BuildContext context) => HomeScreen()),
+  //         (Route<dynamic> route) => false);
 
-        setState(
-          () {
-            _isLoading = false;
-            print('Logged In');
-          },
-        );
-      } else {
-        print(response.body);
-      }
-    } catch (c) {
-      print(c);
-    }
-    return LoginModel;
-  }
+  //     if (userModel != null) {
+  //       setState(() {
+  //         print(userModel);
+  //         print('Logged In');
+  //         _isLoading = false;
+  //       });
+  //     } else {
+  //       print(response.body);
+  //     }
+  //     return userModel;
+  //   }
+  // }
 }

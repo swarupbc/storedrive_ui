@@ -1,18 +1,36 @@
-class LoginModel {
-  String message;
-  bool status;
+class UserModel {
+  String username;
+  String address;
+  String contactNo;
+  String ownerName;
+  String profilePic;
+  String cardType;
 
-  LoginModel({this.message, this.status});
+  UserModel(
+      {this.username,
+      this.address,
+      this.contactNo,
+      this.ownerName,
+      this.profilePic,
+      this.cardType});
 
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    message = json['message'];
-    status = json['status'];
+  UserModel.fromJson(Map<String, dynamic> json) {
+    username = json['username'];
+    address = json['address'];
+    contactNo = json['contact_no'];
+    ownerName = json['owner_name'];
+    profilePic = json['profile_pic'];
+    cardType = json['CardType'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['message'] = this.message;
-    data['status'] = this.status;
+    data['username'] = this.username;
+    data['address'] = this.address;
+    data['contact_no'] = this.contactNo;
+    data['owner_name'] = this.ownerName;
+    data['profile_pic'] = this.profilePic;
+    data['CardType'] = this.cardType;
     return data;
   }
 }
